@@ -3,6 +3,7 @@ subscriber = zmq.socket("sub");
 
 subscriber.connect("tcp://127.0.0.1:3000");
 subscriber.subscribe("");
+
 console.log("Subscriber connected to port 3000");
 
 subscriber.on("message", function(topic) {
