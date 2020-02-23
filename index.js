@@ -6,10 +6,18 @@ subscriber.subscribe("");
 
 console.log("Subscriber connected to port 3000");
 
-subscriber.on("message", function(topic) {
-  console.log(
-    "received a message related to:",
-    topic.toString('hex'));
+/*
+subscriber.on("message", function() {
+    let msg = []
+    Array.prototype.slice.call(arguments).forEach(arg => {
+        msg.push(arg.toString())
+    })
+  console.log(msg);
+});
+*/
+
+subscriber.on("message", function(a, b) {
+  console.log(a.toString(), '< >', b.toString());
 });
 
 process.on('SIGINT', () => {
