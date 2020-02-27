@@ -1,26 +1,40 @@
 let zmq = require("zeromq"),
-subscriber = zmq.socket("sub");
+dealer = zmq.socket("dealer");
 
-subscriber.connect("tcp://127.0.0.1:3000");
-subscriber.subscribe("");
+function randomBetween(min, max) {
+  return Math.floor(Math.random() * (max - min) + min);
+}
 
-console.log("Subscriber connected to port 3000");
+function randomString() {
+  var source = 'abcdefghijklmnopqrstuvwxyz'
+  var target = [];
+  for (var i = 0; i < 20; i++) {
+    target.push(source[randomBetween(0, source.length)]);
+  }
+  return target.join('');
+}
 
-/*
-subscriber.on("message", function() {
+dealer.identity = randomString();
+dealer.connect("tcp://127.0.0.1:3000");
+
+console.log("dealer connected to port 3000");
+
+
+dealer.on("message", function() {
     let msg = []
     Array.prototype.slice.call(arguments).forEach(arg => {
         msg.push(arg.toString())
     })
   console.log(msg);
 });
-*/
 
-subscriber.on("message", function(a, b) {
-  console.log(a.toString(), '< >', b.toString());
-});
+var sendMessage = function() {
+    dealer.send(["", "getblocktemplate"]);
+}
+
+sendMessage()
 
 process.on('SIGINT', () => {
-    subscriber.close()
+    dealer.close()
     console.log('\nClosed')
 })
