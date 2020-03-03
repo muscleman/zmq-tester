@@ -1,5 +1,6 @@
 let zmq = require("zeromq"),
 dealer = zmq.socket("dealer");
+const { fromEvent } = require('rxjs');
 
 function randomBetween(min, max) {
   return Math.floor(Math.random() * (max - min) + min);
@@ -14,25 +15,44 @@ function randomString() {
   return target.join('');
 }
 
-dealer.identity = randomString();
-dealer.connect("tcp://127.0.0.1:3000");
 
-console.log("dealer connected to port 3000");
+function startZMQ() {
+    dealer.identity = randomString();
+    dealer.connect("tcp://127.0.0.1:3000");
 
-
-dealer.on("message", function() {
-    let msg = []
-    Array.prototype.slice.call(arguments).forEach(arg => {
-        msg.push(arg.toString())
-    })
-  console.log(msg);
-});
-
-var sendMessage = function() {
-    dealer.send(["", "getblocktemplate"]);
+    console.log("dealer connected to port 3000");
+    const zmqDirector = fromEvent(dealer, "message");
+    zmqDirector.subscribe(x => {
+                        let msg = []
+                        Array.prototype.slice.call(arguments).forEach(arg => {
+                             msg.push(arg.toString())
+                        })
+                        console.log(msg);
+                    })
 }
 
-sendMessage()
+var sendMessage = function(type, address) {
+    if (type === 'getinfo') {
+        let getinfo = {"jsonrpc": "2.0",
+                       "id": "1",
+                       "method": "get_info",
+                       "params": {}}
+        dealer.send(["", JSON.stringify(getinfo)]);
+    }
+    if (type === 'get_block_template') {
+        let getblocktemplate = {"jsonrpc":"2.0",
+                                "id":"0",
+                                "method":"get_block_template",
+                                "params":{"reserve_size":17,
+                                           "wallet_address":address} }
+
+        dealer.send(["", JSON.stringify(getblocktemplate)]);
+    }
+
+}
+
+startZMQ();
+sendMessage('get_block_template', 'my-wallet-address')
 
 process.on('SIGINT', () => {
     dealer.close()
