@@ -22,12 +22,9 @@ function startZMQ() {
 
     console.log("dealer connected to port 3000");
     const zmqDirector = fromEvent(dealer, "message");
+
     zmqDirector.subscribe(x => {
-                        let msg = []
-                        Array.prototype.slice.call(arguments).forEach(arg => {
-                             msg.push(arg.toString())
-                        })
-                        console.log(msg);
+                        console.log(JSON.parse(x.toString()));
                     })
 }
 
@@ -44,6 +41,7 @@ var sendMessage = function(type, address) {
                                 "id":"0",
                                 "method":"get_block_template",
                                 "params":{"reserve_size":17,
+                                          "prev_block": "",
                                            "wallet_address":address} }
 
         dealer.send(["", JSON.stringify(getblocktemplate)]);
@@ -52,7 +50,7 @@ var sendMessage = function(type, address) {
 }
 
 startZMQ();
-sendMessage('get_block_template', 'my-wallet-address')
+sendMessage('get_block_template', 'your-wallet-address')
 
 process.on('SIGINT', () => {
     dealer.close()
