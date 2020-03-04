@@ -41,7 +41,6 @@ var sendMessage = function(type, address) {
                                 "id":"0",
                                 "method":"get_block_template",
                                 "params":{"reserve_size":17,
-                                          "prev_block": "",
                                            "wallet_address":address} }
 
         dealer.send(["", JSON.stringify(getblocktemplate)]);
@@ -50,7 +49,7 @@ var sendMessage = function(type, address) {
 }
 
 startZMQ();
-sendMessage('get_block_template', 'your-wallet-address')
+sendMessage('get_block_template', 'your**wallet**address')
 
 process.on('SIGINT', () => {
     dealer.close()
