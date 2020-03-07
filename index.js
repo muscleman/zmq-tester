@@ -18,9 +18,9 @@ function randomString() {
 
 function startZMQ() {
     dealer.identity = randomString();
-    dealer.connect("tcp://127.0.0.1:3000");
+    dealer.connect("tcp://0.0.0.0:19995");
 
-    console.log("dealer connected to port 3000");
+    console.log("dealer connected to port 19995");
     const zmqDirector = fromEvent(dealer, "message");
 
     zmqDirector.subscribe(x => {
@@ -49,9 +49,10 @@ var sendMessage = function(type, address) {
 }
 
 startZMQ();
-sendMessage('get_block_template', 'your**wallet**address')
+sendMessage('get_block_template', 'Add**Wallet**Address')
 
 process.on('SIGINT', () => {
+    dealer.send(["", "EVICT"]);
     dealer.close()
     console.log('\nClosed')
 })
